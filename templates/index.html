@@ -1,0 +1,19 @@
+{% extends "layout.html" %} {% block content %}
+<div>
+  <div class="font-bold text-3xl m-3">Welcome to Password Vault</div>
+  <div class="flex flex-col items-center justify-center">
+    <a
+      href="/add-password"
+      class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-2xl mb-4"
+    >
+      New Password
+    </a>
+    <a
+      href="/get-password"
+      class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-2xl"
+    >
+      View Passwords
+    </a>
+  </div>
+</div>
+{% endblock %}
