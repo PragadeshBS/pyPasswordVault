@@ -73,6 +73,9 @@ class PasswordManager:
     def list_services(self):
         return list(self.passwords.keys())
 
+    def get_all_passwords(self):
+        return self.passwords
+
 
 def main():
     manager = PasswordManager()

@@ -54,7 +54,13 @@ def retrieve():
             "get-password.html",
             message="No password found for this website and username",
         )
-    return render_template("get-password.html")
+    saved_passwords = manager.get_all_passwords()
+    return render_template(
+        "get-password.html",
+        passwords=saved_passwords,
+        websites=saved_passwords.keys(),
+        passwords_count=len(saved_passwords),
+    )
 
 
 if __name__ == "__main__":

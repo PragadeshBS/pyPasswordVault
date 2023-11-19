@@ -117,4 +117,6 @@ dmypy.json
 .pyre/
 
 node_modules/
+*.sqlite
+*.db
 encrypted_passwords.json
