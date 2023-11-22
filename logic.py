@@ -1,9 +1,8 @@
-from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-from cryptography.fernet import Fernet
 import base64
 import json
+import crypt_ops
 
 
 class PasswordManager:
@@ -19,7 +18,7 @@ class PasswordManager:
             algorithm=hashes.SHA256(),
             iterations=100000,  # adjust as needed for your security requirements
             salt=b"some_salt",  # a unique salt for each user
-            length=32,  # the length of the derived key
+            length=16,  # the length of the derived key
         )
         key = kdf.derive(master_password.encode())
         self.key = base64.urlsafe_b64encode(key)
@@ -30,11 +29,12 @@ class PasswordManager:
                 data = file.read()
                 if self.key:
                     try:
-                        cipher_suite = Fernet(self.key)
-                        decrypted_data = cipher_suite.decrypt(data)
-                        self.passwords = json.loads(decrypted_data.decode())
+                        decrypted_data = crypt_ops.dec(self.key, data)
+                        decrypted_data = decrypted_data.decode().replace(chr(0), "")
+                        self.passwords = json.loads(decrypted_data)
                         self.valid_master_pwd = True
-                    except:
+                    except Exception as e:
+                        print(e)
                         print("Invalid master password. Please try again.")
                         self.valid_master_pwd = False
                 else:
@@ -48,8 +48,9 @@ class PasswordManager:
 
     def save_passwords(self):
         if self.key:
-            cipher_suite = Fernet(self.key)
-            encrypted_data = cipher_suite.encrypt(json.dumps(self.passwords).encode())
+            encrypted_data = crypt_ops.enc(
+                self.key, json.dumps(self.passwords).encode()
+            )
             with open(self.file_path, "wb") as file:
                 file.write(encrypted_data)
         else:
