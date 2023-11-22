@@ -1,21 +1,23 @@
-from flask import Flask, jsonify, render_template, request, redirect
+from flask import Flask, jsonify, render_template, request, redirect, session
 import logic
 
 app = Flask(__name__)
+
+app.secret_key = b"some_random_secret"
 
 manager = logic.PasswordManager()
 
 
 @app.route("/")
 def index():
-    if not manager.valid_master_pwd:
+    if session.get("user") is None:
         return redirect("/get-master-password")
     return render_template("index.html")
 
 
 @app.route("/add-password", methods=["GET", "POST"])
 def store():
-    if not manager.valid_master_pwd:
+    if session.get("user") is None:
         return redirect("/get-master-password")
     if request.method == "POST":
         website = request.form["website"]
@@ -35,13 +37,14 @@ def get_master_password():
             return render_template(
                 "get-master-password.html", error="Invalid master password"
             )
+        session["user"] = True
         return redirect("/")
     return render_template("get-master-password.html")
 
 
 @app.route("/get-password", methods=["GET", "POST"])
 def retrieve():
-    if not manager.valid_master_pwd:
+    if session.get("user") is None:
         return redirect("/get-master-password")
     if request.method == "POST":
         website = request.form["website"]

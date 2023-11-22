@@ -43,6 +43,7 @@ class PasswordManager:
                     )
         except FileNotFoundError:
             # If the file doesn't exist, initialize an empty dictionary
+            print("New file will be created on save")
             self.passwords = {}
             self.valid_master_pwd = True
 
