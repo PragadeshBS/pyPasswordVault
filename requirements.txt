@@ -4,8 +4,10 @@ click
 colorama
 cryptography
 Flask
+gunicorn
 itsdangerous
 Jinja2
 MarkupSafe
+packaging
 pycparser
 Werkzeug
