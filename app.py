@@ -66,5 +66,22 @@ def retrieve():
     )
 
 
+@app.route("/reset", methods=["GET", "POST"])
+def reset():
+    if session.get("user") is None:
+        return redirect("/get-master-password")
+    if request.method == "POST":
+        manager.reset()
+        session.clear()
+        return redirect("/get-master-password")
+    return render_template("reset.html")
+
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/")
+
+
 if __name__ == "__main__":
     app.run(debug=True)

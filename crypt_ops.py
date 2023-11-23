@@ -585,16 +585,6 @@ reverse_aes_sbox = [
 ]
 
 
-def print_grid(grid):
-    for row in grid:
-        for val in row:
-            h = hex(val)
-            if len(h) == 3:
-                h = "0x0" + h[2]
-            print("{} ".format(h), end="")
-        print()
-
-
 def lookup(byte):
     x = byte >> 4
     y = byte & 15
@@ -747,9 +737,9 @@ def enc(key, data):
             add_sub_key_step = add_sub_key(mix_column_step, round_key)
             temp_grids.append(add_sub_key_step)
 
-            print("Round:", round, "Key:", round_key)
+            # print("Round:", round, "Key:", round_key)
 
-            print("\nIntermediate step:", add_sub_key_step)
+            # print("\nIntermediate step:", add_sub_key_step)
 
         grids = temp_grids
 

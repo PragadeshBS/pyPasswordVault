@@ -11,6 +11,7 @@ class PasswordManager:
         self.key = None
         self.valid_master_pwd = False
         self.passwords = {}
+        self.is_reset = False
 
     def generate_key(self, master_password):
         # Use PBKDF2 with SHA-256 for key derivation
@@ -23,6 +24,12 @@ class PasswordManager:
         key = kdf.derive(master_password.encode())
         self.key = base64.urlsafe_b64encode(key)
 
+    def reset(self):
+        self.key = None
+        self.valid_master_pwd = False
+        self.passwords = {}
+        self.is_reset = True
+
     def load_passwords(self):
         try:
             with open(self.file_path, "rb") as file:
@@ -33,6 +40,7 @@ class PasswordManager:
                         decrypted_data = decrypted_data.decode().replace(chr(0), "")
                         self.passwords = json.loads(decrypted_data)
                         self.valid_master_pwd = True
+                        print("Passwords loaded successfully!")
                     except Exception as e:
                         print(e)
                         print("Invalid master password. Please try again.")
@@ -59,7 +67,14 @@ class PasswordManager:
 
     def set_master_password(self, master_password):
         self.generate_key(master_password)
-        self.load_passwords()
+        if self.is_reset:
+            print("Resetting...")
+            self.save_passwords()
+            self.is_reset = False
+            self.valid_master_pwd = True
+        else:
+            print("Loading passwords...")
+            self.load_passwords()
         print("Master password set successfully!")
 
     def add_password(self, service, username, password):
