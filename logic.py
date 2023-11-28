@@ -3,6 +3,7 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 import base64
 import json
 import crypt_ops
+import hashlib
 
 
 class PasswordManager:
@@ -39,8 +40,19 @@ class PasswordManager:
                         decrypted_data = crypt_ops.dec(self.key, data)
                         decrypted_data = decrypted_data.decode().replace(chr(0), "")
                         self.passwords = json.loads(decrypted_data)
-                        self.valid_master_pwd = True
-                        print("Passwords loaded successfully!")
+                        print("Checking hash...")
+                        stored_hash = self.passwords["hash"]
+                        del self.passwords["hash"]
+                        plain_passwords = json.dumps(self.passwords).encode()
+                        sha512 = hashlib.sha512()
+                        sha512.update(plain_passwords)
+                        hex_digest = sha512.hexdigest()
+                        if stored_hash != hex_digest:
+                            print("Hash mismatch. Passwords may have been tampered.")
+                            self.valid_master_pwd = False
+                        else:
+                            print("Hash matched. Passwords loaded successfully!")
+                            self.valid_master_pwd = True
                     except Exception as e:
                         print(e)
                         print("Invalid master password. Please try again.")
@@ -57,9 +69,13 @@ class PasswordManager:
 
     def save_passwords(self):
         if self.key:
-            encrypted_data = crypt_ops.enc(
-                self.key, json.dumps(self.passwords).encode()
-            )
+            sha512 = hashlib.sha512()
+            plain_passwords = json.dumps(self.passwords).encode()
+            sha512.update(plain_passwords)
+            hex_digest = sha512.hexdigest()
+            self.passwords["hash"] = hex_digest
+            passwords_with_hash = json.dumps(self.passwords).encode()
+            encrypted_data = crypt_ops.enc(self.key, passwords_with_hash)
             with open(self.file_path, "wb") as file:
                 file.write(encrypted_data)
         else:
